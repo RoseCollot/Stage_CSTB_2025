@@ -73,50 +73,52 @@ def merge_overlap_exons(df):
     exon_strand = []
     exons= []
     nb_overlap = []
-    exon_gene=[]
+    gene_list=[]
     for chromosome in df['chromosome'].unique():  
         df_chromosome = df[df['chromosome'] == chromosome]
-        for strand in df_chromosome['strand'].unique():  
+        for strand in df_chromosome['strand'].unique(): 
             df_strand = df_chromosome[df_chromosome['strand'] == strand]
-            exons_list=[]
             start = None
             end = None
-            gene : None
-            for i in range (len(df_strand)):
-                gene = df_strand.iloc[i]['gene']
-                exon = str(df_strand.iloc[i]['exon'])
-                exons_list.append(exon)
-                if start is None :  #first exons
-                        start = df_strand.iloc[i]['start']
-                        end = df_strand.iloc[i]['end']
-                elif df_strand.iloc[i]['start'] <= end  and df_strand.iloc[i]['end'] <= end: 
-                        continue
-                elif df_strand.iloc[i]['start'] <= end and df_strand.iloc[i]['end'] > end: 
-                        end = df_strand.iloc[i]['end']
-                elif df_strand.iloc[i]['start'] > end:
-                        if end-start > 1: 
-                                exon_start.append(start)
-                                exon_end.append(end)
-                                exon_chromosome.append(chromosome)
-                                length.append(end-start)
-                                exon_strand.append(strand)
-                                exons.append(exons_list)
-                                nb_overlap.append(len(exons_list))
-                                exon_gene.append(gene)
-                                start = df_strand.iloc[i]['start']      #start of the new bloc of exons 
-                                end = df_strand.iloc[i]['end']
-                
-                exon_start.append(start)
-                exon_end.append(end)
-                exon_chromosome.append(chromosome)
-                length.append(end-start)
-                exon_strand.append(strand)
-                exons.append(exons_list)
-                nb_overlap.append(len(exons_list))
-                exons_list = []
-                exon_gene.append(gene)
-            
-    df_exons = pd.DataFrame(list(zip(exon_chromosome, exon_start, exon_end, length, exon_strand, exons, nb_overlap, exon_gene)),
+            for g in df_strand['gene'].unique():
+                exons_list=[]
+                df_gene = df_strand[df_strand['gene'] == g]
+                for i in range(len(df_gene)):
+                    if start is None :  
+                        start = df_gene.iloc[i]['start']
+                        end = df_gene.iloc[i]['end']
+                    if df_gene.iloc[i]['start'] <= end  and df_gene.iloc[i]['end'] <= end: 
+                            exons_list.append(str(df_gene.iloc[i]['exon']))
+                            continue
+                    if df_gene.iloc[i]['start'] <= end and df_gene.iloc[i]['end'] > end : 
+                            exons_list.append(str(df_gene.iloc[i]['exon']))
+                            end = df_gene.iloc[i]['end']
+                    else:
+                        exon_start.append(start)
+                        exon_end.append(end)
+                        exon_chromosome.append(chromosome)
+                        length.append(end-start)
+                        exon_strand.append(strand)
+                        exons.append(exons_list)
+                        nb_overlap.append(len(exons_list))
+                        exons_list = []
+                        gene_list.append(g)
+                        start = df_gene.iloc[i]['start'] 
+                        end = df_gene.iloc[i]['end']
+                        exons_list.append(str(df_gene.iloc[i]['exon']))
+                    if i == len(df_gene)-1:               
+                        exon_start.append(start)
+                        exon_end.append(end)
+                        exon_chromosome.append(chromosome)
+                        length.append(end - start)
+                        exon_strand.append(strand)
+                        exons.append(exons_list)
+                        gene_list.append(g)
+                        nb_overlap.append(len(exons_list))
+                        exons_list = []
+                            
+
+    df_exons = pd.DataFrame(list(zip(exon_chromosome, exon_start, exon_end, length, exon_strand, exons, nb_overlap, gene_list)),
                             columns=('chromosome', 'start', 'end', 'length', 'strand','exons', 'nb_overlapping_exons', 'gene'))
     df_exons = df_exons.drop_duplicates(subset=['chromosome','start','end','strand'])
     df_exons = df_exons.drop(df_exons[df_exons['length']<1].index)
