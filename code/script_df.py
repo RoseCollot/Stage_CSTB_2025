@@ -103,19 +103,19 @@ def merge_overlap_exons(df):
                         nb_overlap.append(len(exons_list))
                         exons_list = []
                         gene_list.append(g)
+                        
                         start = df_gene.iloc[i]['start'] 
                         end = df_gene.iloc[i]['end']
-                        exons_list.append(str(df_gene.iloc[i]['exon']))
-                    if i == len(df_gene)-1:               
-                        exon_start.append(start)
-                        exon_end.append(end)
-                        exon_chromosome.append(chromosome)
-                        length.append(end - start)
-                        exon_strand.append(strand)
-                        exons.append(exons_list)
-                        gene_list.append(g)
-                        nb_overlap.append(len(exons_list))
-                        exons_list = []
+                        exons_list=[str(df_gene.iloc[i]['exon'])]
+                if start is not None:
+                    exon_start.append(start)
+                    exon_end.append(end)
+                    exon_chromosome.append(chromosome)
+                    length.append(end - start)
+                    exon_strand.append(strand)
+                    exons.append(exons_list)
+                    nb_overlap.append(len(exons_list))
+                    gene_list.append(g)
                             
 
     df_exons = pd.DataFrame(list(zip(exon_chromosome, exon_start, exon_end, length, exon_strand, exons, nb_overlap, gene_list)),
