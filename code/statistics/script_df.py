@@ -5,7 +5,7 @@ import argparse
 
 def create_database(path_to_gff,path_to_database):
     """create a database from a gff file"""
-    if not os.path.exists(path_to_database):    #create a new database or read the existing one
+    if not os.path.exists(path_to_database):    
         db = gffutils.create_db(path_to_gff, path_to_database, 
                                 merge_strategy="create_unique", keep_order=True, checklines=10,force=False, force_gff=True )
     else : 
@@ -22,7 +22,7 @@ def dataframe_gff(database):
         exon_length = []
         exon_strand = []
         chromosome_id = []
-        for exon in database.features_of_type('exon'):  #select only exons
+        for exon in database.features_of_type('exon'): 
                 if len(list(database.parents(exon, featuretype='mRNA'))) == 0:  
                         continue
                 else : 
@@ -33,9 +33,9 @@ def dataframe_gff(database):
                         exon_strand.append(exon.strand)
                         chromosome_id.append(exon.seqid)
                         for t in database.parents(exon, featuretype='mRNA'):   
-                                transcript_id.append(t.id)      #get the name of the transcrip
+                                transcript_id.append(t.id)      
                                 for g in database.parents(t, featuretype='gene') : 
-                                        gene_id.append(g.id)    #get the name of the gene
+                                        gene_id.append(g.id)   
         df = pd.DataFrame(list(zip(chromosome_id,exon_id,transcript_id,gene_id,exon_start,exon_end,exon_length,exon_strand)), 
                           columns = ['chromosome','exon','transcript','gene','start', 'end', 'length', 'strand'])
  
@@ -45,21 +45,21 @@ def dataframe_gff(database):
         pseudogenes_id = []
         for p in database.features_of_type('pseudogene'): 
                 for id in p.attributes['Dbxref']:  
-                        pseudogenes_id.append(id)       #make a list of all pseudogenes id
+                        pseudogenes_id.append(id)       
         exons_to_drop = []
         for e in database.features_of_type('exon'): 
                 if 'Dbxref' in e.attributes: 
                         for id in e.attributes['Dbxref']: 
                                 if id in pseudogenes_id:
-                                        exons_to_drop.append(e.id)      #make a llist of all exons id if exons are from pseudogenes
-        df = df.drop(df[df['exon'].isin(exons_to_drop)].index)  #drop these exons
+                                        exons_to_drop.append(e.id)   
+        df = df.drop(df[df['exon'].isin(exons_to_drop)].index)  
 
         MT_id= None
         for r in database.features_of_type('region') :
                 if r.id.startswith('NC') :
                         for name in r.attributes['Name']:
                                 if name == 'MT':
-                                        MT_id = r.seqid         #get the mitochrondrial genome id 
+                                        MT_id = r.seqid         
         if MT_id is not None :
                 df = df.drop(df[df['chromosome']==MT_id].index)
         return df
@@ -137,8 +137,8 @@ def introns_dataframe(df_exons):
         if len(df_gene)>1 :
             for i in range(len(df_gene)-1):
                     j=i+1
-                    start = df_gene.iloc[i]['end']      #start of the intron is the end of the last exons
-                    end = df_gene.iloc[j]['start']      #end of the intron is the start of the next exons
+                    start = df_gene.iloc[i]['end']      
+                    end = df_gene.iloc[j]['start']      
                     intron_start.append(start)
                     intron_end.append(end)
                     intron_length.append(end-start)
@@ -186,7 +186,7 @@ def stats_gene(database,df, df_introns):
 def df_to_csv (path_to_gff,path_to_db, path_to_df): 
     """Main function, convert all dataframes into csv files"""
     if not os.path.exists(path_to_df):
-        os.makedirs(path_to_df)         #create a directory with the genome's name if it doesn't exist
+        os.makedirs(path_to_df)         
     db = create_database(path_to_gff, path_to_db)
     df = dataframe_gff(db)
     df_exons = merge_overlap_exons(df)
