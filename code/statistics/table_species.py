@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import numpy as np
 
-def df_species_update (path_to_otiginal_csv, path_to_new_tsv): #Update : new genome accession id is replaced by the old one (currently used)
+def df_species_update (path_to_otiginal_csv, path_to_new_tsv):  #Update : new genome accession id is replaced by the old one (currently used)
     df_species = pd.read_csv(path_to_otiginal_csv,sep='\t')
     df_species = df_species.sort_values(by='Assembly Accession')
     df_species['Assembly Accession'] = df_species['Assembly Accession'].replace('GCF_043159975.1', 'GCF_000956065.1')
@@ -13,7 +13,7 @@ def create_table (path_to_df_species,path_to_df_dir, path_to_output) :
     list_species = []
     df_species = pd.read_csv(path_to_df_species, sep='\t')
     for index, row in df_species.iterrows(): 
-        path_dir= os.path.join(path_to_df_dir,row['Assembly Accession'])
+        path_dir= os.path.join(path_to_df_dir,row['Assembly Accession'])    #write the path to the directory containing the dataframes
         df = pd.read_csv(os.path.join(path_dir,'df'))
         df_exons = pd.read_csv(os.path.join(path_dir,'df_exons'))
         df_introns = pd.read_csv(os.path.join(path_dir,'df_introns'))

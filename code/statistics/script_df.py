@@ -9,7 +9,7 @@ def create_database(path_to_gff,path_to_database):
         db = gffutils.create_db(path_to_gff, path_to_database, 
                                 merge_strategy="create_unique", keep_order=True, checklines=10,force=False, force_gff=True )
     else : 
-        db = gffutils.FeatureDB(path_to_database)
+        db = gffutils.FeatureDB(path_to_database)   #read the existing database
     return db
  
 def dataframe_gff(database):
@@ -23,7 +23,7 @@ def dataframe_gff(database):
         exon_strand = []
         chromosome_id = []
         for exon in database.features_of_type('exon'): 
-                if len(list(database.parents(exon, featuretype='mRNA'))) == 0:  
+                if len(list(database.parents(exon, featuretype='mRNA'))) == 0:  #only select exons from coding genes
                         continue
                 else : 
                         exon_id.append(exon.id)
@@ -45,13 +45,13 @@ def dataframe_gff(database):
         pseudogenes_id = []
         for p in database.features_of_type('pseudogene'): 
                 for id in p.attributes['Dbxref']:  
-                        pseudogenes_id.append(id)       
+                        pseudogenes_id.append(id)       #list of all pseudogenes id
         exons_to_drop = []
         for e in database.features_of_type('exon'): 
                 if 'Dbxref' in e.attributes: 
                         for id in e.attributes['Dbxref']: 
                                 if id in pseudogenes_id:
-                                        exons_to_drop.append(e.id)   
+                                        exons_to_drop.append(e.id)  #list of exons for which the gene id is a pseudogene id
         df = df.drop(df[df['exon'].isin(exons_to_drop)].index)  
 
         MT_id= None
@@ -59,9 +59,9 @@ def dataframe_gff(database):
                 if r.id.startswith('NC') :
                         for name in r.attributes['Name']:
                                 if name == 'MT':
-                                        MT_id = r.seqid         
+                                        MT_id = r.seqid         #get the id for the mitochondiral genome
         if MT_id is not None :
-                df = df.drop(df[df['chromosome']==MT_id].index)
+                df = df.drop(df[df['chromosome']==MT_id].index)     #grop all exons coming from the mitochondrial genome
         return df
 
 def merge_overlap_exons(df):
@@ -74,26 +74,26 @@ def merge_overlap_exons(df):
     exons= []
     nb_overlap = []
     gene_list=[]
-    for chromosome in df['chromosome'].unique():  
+    for chromosome in df['chromosome'].unique():    #selection of exons by chromosome 
         df_chromosome = df[df['chromosome'] == chromosome]
         for strand in df_chromosome['strand'].unique(): 
             df_strand = df_chromosome[df_chromosome['strand'] == strand]
-            start = None
-            end = None
-            for g in df_strand['gene'].unique():
+            start = None    #start reset at each strand 
+            end = None      #end reset at each  strand
+            for g in df_strand['gene'].unique():    #selection of exons by gene
                 exons_list=[]
                 df_gene = df_strand[df_strand['gene'] == g]
                 for i in range(len(df_gene)):
                     if start is None :  
-                        start = df_gene.iloc[i]['start']
-                        end = df_gene.iloc[i]['end']
+                        start = df_gene.iloc[i]['start']    #set start for the first exon of the gene
+                        end = df_gene.iloc[i]['end']        #set end for the first exon of the gene
                     if df_gene.iloc[i]['start'] <= end  and df_gene.iloc[i]['end'] <= end: 
-                            exons_list.append(str(df_gene.iloc[i]['exon']))
+                            exons_list.append(str(df_gene.iloc[i]['exon']))     
                             continue
                     if df_gene.iloc[i]['start'] <= end and df_gene.iloc[i]['end'] > end : 
                             exons_list.append(str(df_gene.iloc[i]['exon']))
-                            end = df_gene.iloc[i]['end']
-                    else:
+                            end = df_gene.iloc[i]['end']    #adjust the end position if the overlapping exon is bigger 
+                    else:                           #when an exon is not overlapping, save the last one 
                         exon_start.append(start)
                         exon_end.append(end)
                         exon_chromosome.append(chromosome)
@@ -104,10 +104,10 @@ def merge_overlap_exons(df):
                         exons_list = []
                         gene_list.append(g)
                         
-                        start = df_gene.iloc[i]['start'] 
-                        end = df_gene.iloc[i]['end']
+                        start = df_gene.iloc[i]['start']    #set the start of the new exon
+                        end = df_gene.iloc[i]['end']        #set the end of the new exon
                         exons_list=[str(df_gene.iloc[i]['exon'])]
-                if start is not None:
+                if start is not None:   #save the last exon of the strand
                     exon_start.append(start)
                     exon_end.append(end)
                     exon_chromosome.append(chromosome)
@@ -137,8 +137,8 @@ def introns_dataframe(df_exons):
         if len(df_gene)>1 :
             for i in range(len(df_gene)-1):
                     j=i+1
-                    start = df_gene.iloc[i]['end']      
-                    end = df_gene.iloc[j]['start']      
+                    start = df_gene.iloc[i]['end']      #set the start of the intron as the end of the exon that precedes it 
+                    end = df_gene.iloc[j]['start']      #set the end of the intron as the start of the next exon
                     intron_start.append(start)
                     intron_end.append(end)
                     intron_length.append(end-start)
@@ -155,7 +155,7 @@ def introns_dataframe(df_exons):
 def stats_gene(database,df, df_introns):
     """Create a dataframe containing statistics for each gene"""
     genes = []                                            
-    for g in df['gene'].unique() :                    
+    for g in df['gene'].unique() :  #get exons statisticcs                    
         df_gene = df[df['gene']==g]                    
         gene_row = []                                 
         gene_row.append(g)   
@@ -168,7 +168,7 @@ def stats_gene(database,df, df_introns):
         genes.append(gene_row)
     df_exons_genes = pd.DataFrame(genes, columns = ['gene','length','nb_exons','exons_tot_length'])
     genes = []                                            
-    for g in df_introns['gene'].unique() :                    
+    for g in df_introns['gene'].unique() :      #get introns statistics                    
         df_gene = df_introns[df_introns['gene']==g]                    
         gene_row = []                                  
         gene_row.append(g)                                 
@@ -186,7 +186,7 @@ def stats_gene(database,df, df_introns):
 def df_to_csv (path_to_gff,path_to_db, path_to_df): 
     """Main function, convert all dataframes into csv files"""
     if not os.path.exists(path_to_df):
-        os.makedirs(path_to_df)         
+        os.makedirs(path_to_df)         #create directory if it doesn't exist already
     db = create_database(path_to_gff, path_to_db)
     df = dataframe_gff(db)
     df_exons = merge_overlap_exons(df)
