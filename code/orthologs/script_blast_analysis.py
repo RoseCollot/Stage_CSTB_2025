@@ -75,7 +75,7 @@ def find_exon_event (blast_final):
         if len(duplicates) > 0:
             return pd.concat(duplicates)
         else:
-            return pd.DataFrame()
+            return pd.DataFrame(columns=['query', 'subject'])
     df_one_to_many = pd.DataFrame()
     df_many_to_one = pd.DataFrame()
     df_one_to_many = pd.concat([df_one_to_many, check_duplicates(blast_final, species_column='subject_species', check_column='query')])
