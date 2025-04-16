@@ -52,19 +52,22 @@ def create_ks_df (table_species, path_to_genomes_df_dir,data_column, pvalue_or_s
     df_ks = df_ks.reindex(index=species_order, columns=species_order)   #keep the order the same as the tree one
     return df_ks
 
-def half_headmap (df_ks, distance_df, path_to_heatmap):
+def half_headmap (df_ks, distance_df, path_to_heatmap, title):
     #masks hide half of the heatmap
     mask1 = np.tril(np.ones_like(df_ks, dtype=bool))
     mask2 = np.triu(np.ones_like(distance_df, dtype=bool))
     #heatmap half distances, half statistics of number of introns, half distances
-    fig, ax = plt.subplots(figsize=(11, 6))
-    sns.heatmap(df_ks, mask=mask1, vmax=.2, xticklabels=True, yticklabels=True)
-    sns.heatmap(distance_df, mask=mask2, cmap='grey',xticklabels=True, yticklabels=True)
-    plt.savefig(path_to_heatmap,)
+    fig, ax = plt.subplots(figsize=(11, 7))  #create the figure
+    sns.heatmap(df_ks, mask=mask1, vmax=.3, xticklabels=True, yticklabels=True, cbar_kws={'label': 'KS statistics'})
+    sns.heatmap(distance_df, mask=mask2, cmap='grey',xticklabels=True, yticklabels=True, cbar_kws={'label': 'Phylogenetic Distances (Myr)'})
+    ax.set(xlabel="Species", ylabel="Species")
+    ax.set_title(title)
+    plt.tight_layout()
+    plt.savefig(path_to_heatmap, bbox_inches='tight')
 
 distance_df = distance_matrix('stage/collot/collot/out_stats/species_tree.nwk')
 species_order = get_order(distance_df)
-df_ks = create_ks_df('/home/collot/stage/collot/collot/out_stats/table_species.csv','/home/collot/stage/collot/collot/out_stats/output_dataframes', data_column="nb_introns" , pvalue_or_statistic="statistic")
-half_headmap(df_ks, distance_df, '/home/collot/stage/collot/collot/out_stats/heatmap.png')
+df_ks = create_ks_df('/home/collot/stage/collot/collot/out_stats/table_species.csv','/home/collot/stage/collot/collot/out_stats/output_dataframes', data_column="ratio_introns" , pvalue_or_statistic="statistic", title='Intron ratio')
+half_headmap(df_ks, distance_df, '/home/collot/stage/collot/collot/out_stats/heatmap_intron_ratio.png')
 
 
