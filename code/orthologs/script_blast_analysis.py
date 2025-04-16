@@ -3,11 +3,12 @@ from Bio import SeqIO
 import argparse
 
 def blast_to_df (path_to_blast_out, path_to_fasta_in):
+    """Process the .out files of BLAST alignments"""
     blast = pd.read_csv(path_to_blast_out, sep='\t', header=None)
     blast.columns = ["query", "subject", "identity", "alignment_length", "mismatches", "gap_opens","q_start", "q_end", "s_start", "s_end", "evalue", "bit_score"]
-    mask = blast['query'] == blast['subject']
+    mask = blast['query'] == blast['subject']   #create a mask to skip exons aligned with themselves
     blast = blast[~mask] 
-    blast['query_species'] = blast['query'].apply(lambda x: x.split('_')[-1])
+    blast['query_species'] = blast['query'].apply(lambda x: x.split('_')[-1])   #only get the last part of the query id : the taxa
     blast['subject_species'] = blast['subject'].apply(lambda x: x.split('_')[-1])
     blast['gene'] = blast['query'].apply(lambda x: x.split('_')[0])+'_'+blast['query'].apply(lambda x: x.split('_')[-1])
 
@@ -15,7 +16,7 @@ def blast_to_df (path_to_blast_out, path_to_fasta_in):
     with open(path_to_fasta_in, 'r') as f:
         for record in SeqIO.parse(f, 'fasta'):
             exon = record.description
-            exon_length[exon]=len(record.seq)
+            exon_length[exon]=len(record.seq)   #create the tuple (exon,total length of the exon)
     query_length = []
     for e in blast['query'].values:
         if e in exon_length:
@@ -30,6 +31,7 @@ def blast_to_df (path_to_blast_out, path_to_fasta_in):
     blast['query_coverage']= (blast['alignment_length']/blast['query_length'])*100
 
     reciprocal_hits=[]
+    #create a dataframe containign only reciprocal hits
     for index, row in blast.iterrows():
         que = row['query']
         sub = row['subject']
@@ -43,18 +45,21 @@ def blast_to_df (path_to_blast_out, path_to_fasta_in):
     return blast
 
 def merge_duplicates (blast):
-    dup=blast.duplicated(subset=['query', 'subject'], keep=False)
+    """merge hits when there is multiple alignment between the same two exon"""
+    dup=blast.duplicated(subset=['query', 'subject'], keep=False)   #select only the hits from the same exons
     df_dup=blast[dup]
     merged_list=[]
-    grouped_duplicates= df_dup.groupby(['query', 'subject'])
+    grouped_duplicates= df_dup.groupby(['query', 'subject'])     
     for (query, subject), group in grouped_duplicates:
-        row1=group.iloc[0]
-        row2=group.iloc[1]
-        merged_row = row1
+        row1=group.iloc[0]  #first hit
+        row2=group.iloc[1]  #second hit
+        merged_row = row1   #keep the values of the first hit for the other columns 
         merged_row['q_start']=min(row1['q_start'], row2['q_start'])
         merged_row['q_end']=min(row1['q_end'], row2['q_end'])
         merged_row['s_start']=min(row1['s_start'], row2['s_start'])
         merged_row['s_end']=min(row1['s_end'], row2['s_end'])
+        merged_row['alignment_length']=merged_row['q_end']-merged_row['q_start']
+        merged_row['query_coverage']=(merged_row['alignment_length']/merged_row['query_length'])*100
         merged_list.append(merged_row)
     merged_hit=pd.DataFrame(merged_list)
     
@@ -86,28 +91,29 @@ def find_exon_event (blast_final):
         exon_row=[]
         exon_row.append(row['query'])
         exon_row.append(row['subject'])
-        if ((row['query'], row['subject']) in df_one_to_many[['query', 'subject']].itertuples(index=False, name=None)) : #fusion(one big exon agains two small)
-            exon_row.append('fusion')
-        elif ((row['query'], row['subject']) in df_many_to_one[['query', 'subject']].itertuples(index=False, name=None)) : #fission
+        if ((row['query'], row['subject']) in df_one_to_many[['query', 'subject']].itertuples(index=False, name=None)) : #if the exon is aligned with multiple exons from the same species
+            exon_row.append('fusion/')
+        elif ((row['query'], row['subject']) in df_many_to_one[['query', 'subject']].itertuples(index=False, name=None)) : #if mutiple exons from this species are aligned against one unique exon
             overlapping=False
-            other_exons = df_many_to_one[(df_many_to_one['subject'] == row['subject'])&(df_many_to_one['query_species'] == row['query_species'])] 
+            other_exons = df_many_to_one[(df_many_to_one['subject'] == row['subject'])&(df_many_to_one['query_species'] == row['query_species'])] #select all exons aligned with the same one
             for index, other_row in other_exons.iterrows():
-                if other_row['query'] != row['query']:
-                    if not (row['s_end'] < other_row['s_start'] or row['s_start'] > other_row['s_end']):
+                if other_row['query'] != row['query']:  
+                    overlap = max(0, min(row['s_end'], other_row['s_end']) - max(row['s_start'], other_row['s_start']))     
+                    if overlap > 9 :   #arbitrary value for overlap 
                         overlapping = True
                         break
             if overlapping==True:
-                exon_row.append("duplication")
+                exon_row.append("duplication")  #event is called duplication if the two alignment overlap 
             else:
                 exon_row.append("fission")
         else : 
-            exon_row.append('whole')
+            exon_row.append(None)
         exon_row.append(row['query_coverage'])
         exon_row.append(row['gene'])
         exon_row.append(row['query_species'])
         exon_row.append(row['subject_species'])
         exons.append(exon_row)
-    df_changes = pd.DataFrame(exons, columns=['query','subject','state','query_coverage', 'gene', 'query_species', 'subject_species'])
+    df_changes = pd.DataFrame(exons, columns=['query','subject','event','query_coverage', 'gene', 'query_species', 'subject_species'])
     return df_changes
 
 def save_df (path_to_tsv, df_changes):
