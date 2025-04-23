@@ -58,8 +58,9 @@ def half_headmap (df_ks, distance_df, path_to_heatmap, title):
     mask2 = np.triu(np.ones_like(distance_df, dtype=bool))
     #heatmap half distances, half statistics of number of introns, half distances
     fig, ax = plt.subplots(figsize=(11, 7))  #create the figure
-    sns.heatmap(df_ks, mask=mask1, vmax=.3, xticklabels=True, yticklabels=True, cbar_kws={'label': 'KS statistics'})
-    sns.heatmap(distance_df, mask=mask2, cmap='grey',xticklabels=True, yticklabels=True, cbar_kws={'label': 'Phylogenetic Distances (Myr)'})
+    cmap_reversed = plt.colormaps['rocket'].reversed()
+    sns.heatmap(df_ks, mask=mask1, cmap=cmap_reversed, vmax=.2, xticklabels=True, yticklabels=True, cbar_kws={'label': 'KS statistics'})
+    sns.heatmap(distance_df, mask=mask2, cmap='grey', xticklabels=True, yticklabels=True, cbar_kws={'label': 'Phylogenetic Distances (Myr)'})
     ax.set(xlabel="Species", ylabel="Species")
     ax.set_title(title)
     plt.tight_layout()
@@ -67,7 +68,7 @@ def half_headmap (df_ks, distance_df, path_to_heatmap, title):
 
 distance_df = distance_matrix('stage/collot/collot/out_stats/species_tree.nwk')
 species_order = get_order(distance_df)
-df_ks = create_ks_df('/home/collot/stage/collot/collot/out_stats/table_species.csv','/home/collot/stage/collot/collot/out_stats/output_dataframes', data_column="ratio_introns" , pvalue_or_statistic="statistic"), species_order=species_order
-half_headmap(df_ks, distance_df, '/home/collot/stage/collot/collot/out_stats/heatmap_intron_ratio.png', title='Intron ratio')
+df_ks = create_ks_df('/home/collot/stage/collot/collot/out_stats/table_species.csv','/home/collot/stage/collot/collot/out_stats/output_dataframes', data_column="ratio_introns" , pvalue_or_statistic="statistic", species_order=species_order)
+half_headmap(df_ks, distance_df, '/home/collot/stage_git/figures/heatmap_intron_ratio.png', title='Intron ratio')
 
 
