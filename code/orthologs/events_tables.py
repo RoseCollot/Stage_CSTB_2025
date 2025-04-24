@@ -19,13 +19,14 @@ def table (path_to_scpecies_table, path_to_new_species_df):
         row.append(df_gene['query_species'].iloc[0])
         row.append(int(len(df_gene['query'].unique())))
         row.append(int(len(df_gene)))
+        row.append(sum([nb_other,nb_fusion,nb_fission,nb_full_duplication]))
         row.append(int(nb_whole))
         row.append(int(nb_fusion))
         row.append(int(nb_fission))
         row.append(int(nb_full_duplication))
         row.append(int(nb_other))
         row_df.append(row)
-    gene_ali_df = pd.DataFrame(row_df, columns= ['gene', 'species', 'nb_exons','nb_hits', 'no_event', 'fusion', 'fission', 'full_duplication', 'others'])      
+    gene_ali_df = pd.DataFrame(row_df, columns= ['gene', 'species', 'number_of_exons','number_of_hits','number_of_events','no_event', 'fusion', 'fission', 'full_duplication', 'others'])      
     with open(path_to_new_species_df, 'w') as s:
         gene_ali_df.to_csv(s, sep='\t', index=False)
 
