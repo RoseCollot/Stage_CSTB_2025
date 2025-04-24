@@ -33,8 +33,8 @@ def create_ks_df (table_species, path_to_genomes_df_dir,data_column, pvalue_or_s
     species_list = []
     df=[]
     for genome in os.scandir(path_to_genomes_df_dir): 
-        genomes_list.append(genome.name)
-        species_list.append(genid_species.get(genome.name))     #get the specie's name from the genome
+        genomes_list.append(genome.name) 
+        species_list.append(genid_species.get(genome.name))
     for i in range(len(genomes_list)): 
         path_dir= os.path.join(path_to_genomes_df_dir,genomes_list[i])  #write path to the dataframe
         df_stats_i = pd.read_csv(os.path.join(path_dir,'df_stats'))
@@ -64,11 +64,13 @@ def half_headmap (df_ks, distance_df, path_to_heatmap, title):
     sns.heatmap(distance_df, mask=mask2, cmap='grey', xticklabels=True, yticklabels=True, cbar_kws={'label': 'Phylogenetic Distances (Myr)'})
     ax.set(xlabel="Species", ylabel="Species")
     ax.set_title(title)
+    ax.set_xticklabels([label.get_text().replace('_', ' ') for label in ax.get_yticklabels()], fontstyle='italic')
+    ax.set_yticklabels([label.get_text().replace('_', ' ') for label in ax.get_yticklabels()], fontstyle='italic')
     plt.tight_layout()
     plt.savefig(path_to_heatmap, bbox_inches='tight')
 
-distance_df = distance_matrix('stage/collot/collot/out_stats/species_tree.nwk')
+distance_df = distance_matrix('/home/collot/stage_git/species_tree.nwk')
 species_order = get_order(distance_df)
-df_ks = create_ks_df('/home/collot/stage/collot/collot/out_stats/table_species.csv','/home/collot/stage/collot/collot/out_stats/output_dataframes', data_column="nb_introns" , pvalue_or_statistic="statistic", species_order=species_order, path_to_matrix='/home/collot/stage/collot/collot/out_stats/matrix_introns_number.csv')
-half_headmap(df_ks, distance_df, '/home/collot/stage_git/figures/heatmap_introns_number.png', title='Number of introns')
+df_ks = create_ks_df('/home/collot/stage_git/table_species.csv','/home/collot/stage/collot/collot/out_stats/output_dataframes', data_column="exons_tot_length" , pvalue_or_statistic="statistic", species_order=species_order, path_to_matrix='/home/collot/stage/collot/collot/out_stats/matrix_exons_length.csv')
+half_headmap(df_ks, distance_df, '/home/collot/stage_git/figures/heatmap_exons_length.png', title='Length of exonic sequences per gene')
 
