@@ -1,0 +1,36 @@
+Assembly Accession	Assembly Name	Organism Name	Organism Taxonomic ID	Organism Infraspecific Names Breed	Organism Infraspecific Names Strain	Organism Infraspecific Names Cultivar	Organism Infraspecific Names Ecotype	Organism Infraspecific Names Isolate	Organism Infraspecific Names Sex	Annotation Name	Assembly Level	Assembly Release Date	WGS project accession	Assembly Stats Number of Scaffolds
+GCF_037993035.1	T2T-MFA8v1.0	Macaca fascicularis	9541					582-1	female	GCF_037993035.1-RS_2024_05	Complete Genome	2024-04-05		21
+GCF_028858775.2	NHGRI_mPanTro3-v2.0_pri	Pan troglodytes	9598					AG18354	male	GCF_028858775.2-RS_2024_02	Chromosome	2024-01-08	JAQQLN02	25
+GCF_029281585.2	NHGRI_mGorGor1-v2.1_pri	Gorilla gorilla gorilla	9595					KB3781	male	GCF_029281585.2-RS_2024_02	Chromosome	2024-01-08	JARGGP02	25
+GCF_028885625.2	NHGRI_mPonPyg2-v2.0_pri	Pongo pygmaeus	9600					AG05252	male	GCF_028885625.2-RS_2024_02	Chromosome	2024-01-08	JAQQLS02	25
+GCF_028878055.3	NHGRI_mSymSyn1-v2.1_pri	Symphalangus syndactylus	9590					Jambi	male	GCF_028878055.3-RS_2024_07	Chromosome	2024-01-05	JAQQLG02	26
+GCF_000001405.40	GRCh38.p14	Homo sapiens	9606							GCF_000001405.40-RS_2024_08	Chromosome	2022-02-03		470
+GCF_003339765.1	Mmul_10	Macaca mulatta	9544							NCBI Macaca mulatta Annotation Release 103	Chromosome	2019-02-13	QNVO02	2978
+GCF_011100555.1	mCalJa1.2.pat.X	Callithrix jacchus	9483					mCalJac1	male	GCF_011100555.1-RS_2023_03	Chromosome	2021-04-28	JAALXP02	1233
+GCF_008728515.1	Panubis1.0	Papio anubis	9555					15944	male	NCBI Papio anubis Annotation Release 104	Chromosome	2019-10-02	VSMJ01	11144
+GCF_043159975.1	mMacNem.hap1	Macaca nemestrina	9545					mMacNem1	male	GCF_043159975.1-RS_2025_01	Chromosome	2024-10-15	JBHNYF01	361
+GCF_007565055.1	ASM756505v1	Rhinopithecus roxellana	61622					Shanxi Qingling	male	NCBI Rhinopithecus roxellana Annotation Release 101	Chromosome	2019-07-29	VMRL01	3256
+GCF_028885655.2	NHGRI_mPonAbe1-v2.0_pri	Pongo abelii	9601					AG06213	male	GCF_028885655.2-RS_2024_02	Chromosome	2024-01-05	JAQQLQ02	29
+GCF_006542625.1	Asia_NLE_v1	Nomascus leucogenys	61853					Asia	female	NCBI Nomascus leucogenys Annotation Release 103	Chromosome	2019-07-02	VIFL01	2376
+GCF_029289425.2	NHGRI_mPanPan1-v2.0_pri	Pan paniscus	9597						male	GCF_029289425.2-RS_2024_02	Chromosome	2024-01-08	JARIFH02	30
+GCF_000165445.2	Mmur_3.0	Microcebus murinus	30608					mixed	pooled male and female	NCBI Microcebus murinus Annotation Release 101	Chromosome	2017-02-06	ABDC03	7677
+GCF_024542745.1	ASM2454274v1	Macaca thibetana thibetana	257877					TM-01	male	GCF_024542745.1-RS_2023_02	Chromosome	2022-08-09	JANHGW01	623
+GCF_027406575.1	mNycCou1.pri	Nycticebus coucang	9470					mNycCou1	male	GCF_027406575.1-RS_2023_03	Chromosome	2022-12-28	JAPZEE01	84
+GCF_020740605.2	mLemCat1.pri	Lemur catta	9447					mLemCat1	male	NCBI Lemur catta Annotation Release 100	Chromosome	2021-11-04	JAJGPY01	184
+GCF_003255815.1	Tgel_1.0	Theropithecus gelada	9565					Dixy	female	NCBI Theropithecus gelada Annotation Release 100	Chromosome	2018-06-19	QGDE01	15307
+GCF_041146395.1	OSU_ERuf_1	Eulemur rufifrons	859984					Redbay	female	GCF_041146395.1-RS_2024_10	Chromosome	2024-08-16	JBFNAD01	647
+GCF_002776525.5	ASM277652v5	Piliocolobus tephrosceles	591936					RC106	male	NCBI Piliocolobus tephrosceles Annotation Release 102	Chromosome	2019-12-12	PDMG03	32287
+GCF_015252025.1	Vero_WHO_p1.0	Chlorocebus sabaeus	60711		WHO RCB 10-87				female	NCBI Chlorocebus sabaeus Annotation Release 102	Scaffold	2020-11-06	JACDXN01	6872
+GCF_009761245.1	GSC_monkey_1.0	Sapajus apella	9515					SASKATOON/1434	female	NCBI Sapajus apella Annotation Release 100	Scaffold	2019-12-17	WRPQ01	17902
+GCF_030222135.1	86718_ANA_hifiasm-v0.15.2.pri	Aotus nancymaae	37293					86718	female	GCF_030222135.1-RS_2024_04	Contig	2023-06-07	JARRCU01	
+GCF_009764315.1	Tfra_2.0	Trachypithecus francoisi	54180					TF-2019V2	male	NCBI Trachypithecus francoisi Annotation Release 100	Scaffold	2019-12-18	VVIV01	1015
+GCF_000955945.1	Caty_1.0	Cercocebus atys	9531					FAK	female	NCBI Cercocebus atys Annotation Release 100	Scaffold	2015-03-19	JZLG01	11433
+GCF_000164805.1	Tarsius_syrichta-2.0.1	Carlito syrichta	1868482					Samal-C Ts95f	female	NCBI Carlito syrichta Annotation Release 101	Scaffold	2013-09-18	ABRT02	337188
+GCF_001698545.2	ASM169854v2	Rhinopithecus bieti	61621					Rb0	male	NCBI Rhinopithecus bieti Annotation Release 100	Scaffold	2016-08-03	MCGX01	103881
+GCF_000181295.1	OtoGar3	Otolemur garnettii	30611					467f Iridium	female	NCBI Otolemur garnettii Annotation Release 102	Scaffold	2011-03-16	AAQR03	7793
+GCF_016699345.2	BCM_Sbol_2.1	Saimiri boliviensis boliviensis	39432	Bolivian squirrel monkey				100643	female	NCBI Saimiri boliviensis Annotation Release 102	Scaffold	2021-01-12	JAEKCL01	1712
+GCF_009828535.3	HMol_V3	Hylobates moloch	81572					HMO894	male	GCF_009828535.3-RS_2023_07	Scaffold	2021-11-10	WKKJ03	18399
+GCF_001604975.1	Cebus_imitator-1.0	Cebus imitator	2715852					Cc_AM_T3	male	NCBI Cebus imitator Annotation Release 101	Scaffold	2016-04-04	LVWQ01	7156
+GCF_000951045.1	Mleu.le_1.0	Mandrillus leucophaeus	9568					KB7577	female	NCBI Mandrillus leucophaeus Annotation Release 100	Scaffold	2015-03-12	JYKQ01	12821
+GCF_000956105.1	Pcoq_1.0	Propithecus coquereli	379532					6110/MARCELLA	female	NCBI Propithecus coquereli Annotation Release 100	Scaffold	2015-03-23	JZKE01	22538
+GCF_000951035.1	Cang.pa_1.0	Colobus angolensis palliatus	336983					OR3802	female	NCBI Colobus angolensis palliatus Annotation Release 100	Scaffold	2015-03-12	JYKR01	13124
