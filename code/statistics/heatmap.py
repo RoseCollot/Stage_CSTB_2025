@@ -69,8 +69,3 @@ def half_headmap (df_ks, distance_df, path_to_heatmap, title):
     plt.tight_layout()
     plt.savefig(path_to_heatmap, bbox_inches='tight')
 
-distance_df = distance_matrix('/home/collot/stage_git/species_tree.nwk')
-species_order = get_order(distance_df)
-df_ks = create_ks_df('/home/collot/stage_git/table_species.csv','/home/collot/stage/collot/collot/out_stats/output_dataframes', data_column="exons_tot_length" , pvalue_or_statistic="statistic", species_order=species_order, path_to_matrix='/home/collot/stage/collot/collot/out_stats/matrix_exons_length.csv')
-half_headmap(df_ks, distance_df, '/home/collot/stage_git/figures/heatmap_exons_length.png', title='Length of exonic sequences per gene')
-
