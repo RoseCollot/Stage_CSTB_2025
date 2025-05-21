@@ -4,65 +4,64 @@ import os
 import argparse
 
 def create_database(path_to_gff,path_to_database):
-    """create a database from a gff file"""
-    if not os.path.exists(path_to_database):    
+    """Create a database from a gff file """
+    if not os.path.exists(path_to_database):    #assure that the database doesn't exist
         db = gffutils.create_db(path_to_gff, path_to_database, 
                                 merge_strategy="create_unique", keep_order=True, checklines=10,force=False, force_gff=True )
     else : 
-        db = gffutils.FeatureDB(path_to_database)   #read the existing database
+        db = gffutils.FeatureDB(path_to_database)   #get the existing database
     return db
  
 def dataframe_gff(database):
-        """Create a dataframe drom a database and delete duplicates and exons from pseudogenes and mitochrondial genome """
-        exon_id = []
-        transcript_id = []
-        gene_id = []
-        exon_start = []
-        exon_end = []
-        exon_length = []
-        exon_strand = []
-        chromosome_id = []
-        for exon in database.features_of_type('exon'): 
-                if len(list(database.parents(exon, featuretype='mRNA'))) == 0:  #only select exons from coding genes
-                        continue
-                else : 
-                        exon_id.append(exon.id)
-                        exon_start.append(exon.start)
-                        exon_end.append(exon.end) 
-                        exon_length.append(exon.end - exon.start)
-                        exon_strand.append(exon.strand)
-                        chromosome_id.append(exon.seqid)
-                        for t in database.parents(exon, featuretype='mRNA'):   
-                                transcript_id.append(t.id)      
-                                for g in database.parents(t, featuretype='gene') : 
-                                        gene_id.append(g.id)   
-        df = pd.DataFrame(list(zip(chromosome_id,exon_id,transcript_id,gene_id,exon_start,exon_end,exon_length,exon_strand)), 
-                          columns = ['chromosome','exon','transcript','gene','start', 'end', 'length', 'strand'])
- 
-        df = df.drop_duplicates(subset=['start','end','strand','chromosome','gene'])
-        df = df.sort_values(by=['chromosome','start'])
+    """Create a dataframe drom a database and delete duplicates and exons from pseudogenes and mitochrondial genome """
+    exon_id = []
+    transcript_id = []
+    gene_id = []
+    exon_start = []
+    exon_end = []
+    exon_length = []
+    exon_strand = []
+    chromosome_id = []
+    for exon in database.features_of_type('exon'): 
+            if len(list(database.parents(exon, featuretype='mRNA'))) == 0:  #skip exons that do not code for proteins 
+                    continue
+            else :                                                          
+                    exon_id.append(exon.id)
+                    exon_start.append(exon.start)
+                    exon_end.append(exon.end) 
+                    exon_length.append(exon.end - exon.start)
+                    exon_strand.append(exon.strand)
+                    chromosome_id.append(exon.seqid)
+                    for t in database.parents(exon, featuretype='mRNA'):   
+                            transcript_id.append(t.id)      
+                            for g in database.parents(t, featuretype='gene') : 
+                                    gene_id.append(g.id)   
+    df = pd.DataFrame(list(zip(chromosome_id,exon_id,transcript_id,gene_id,exon_start,exon_end,exon_length,exon_strand)), 
+                        columns = ['chromosome','exon','transcript','gene','start', 'end', 'length', 'strand'])
+    df = df.drop_duplicates(subset=['start','end','strand','chromosome','gene'])    #delete duplicates 
+    df = df.sort_values(by=['chromosome','start']) 
 
-        pseudogenes_id = []
-        for p in database.features_of_type('pseudogene'): 
-                for id in p.attributes['Dbxref']:  
-                        pseudogenes_id.append(id)       #list of all pseudogenes id
-        exons_to_drop = []
-        for e in database.features_of_type('exon'): 
-                if 'Dbxref' in e.attributes: 
-                        for id in e.attributes['Dbxref']: 
-                                if id in pseudogenes_id:
-                                        exons_to_drop.append(e.id)  #list of exons for which the gene id is a pseudogene id
-        df = df.drop(df[df['exon'].isin(exons_to_drop)].index)  
+    pseudogenes_id = []
+    for p in database.features_of_type('pseudogene'): 
+            for id in p.attributes['Dbxref']:  
+                    pseudogenes_id.append(id)       #a list of all pseudogenes id
+    exons_to_drop = []
+    for e in database.features_of_type('exon'): 
+            if 'Dbxref' in e.attributes: 
+                    for id in e.attributes['Dbxref']: 
+                            if id in pseudogenes_id:
+                                    exons_to_drop.append(e.id)  #a list of exons for which the gene id = pseudogene id
+    df = df.drop(df[df['exon'].isin(exons_to_drop)].index)  
 
-        MT_id= None
-        for r in database.features_of_type('region') :
-                if r.id.startswith('NC') :
-                        for name in r.attributes['Name']:
-                                if name == 'MT':
-                                        MT_id = r.seqid         #get the id for the mitochondiral genome
-        if MT_id is not None :
-                df = df.drop(df[df['chromosome']==MT_id].index)     #grop all exons coming from the mitochondrial genome
-        return df
+    MT_id= None
+    for r in database.features_of_type('region') :
+            if r.id.startswith('NC') :
+                    for name in r.attributes['Name']:
+                            if name == 'MT':
+                                    MT_id = r.seqid         #mitochondiral genome' id 
+    if MT_id is not None :
+            df = df.drop(df[df['chromosome']==MT_id].index)     #delete all exons coming from the mitochondrial genome
+    return df
 
 def merge_overlap_exons(df):
     """Merge overlapping exons into one"""
@@ -76,10 +75,10 @@ def merge_overlap_exons(df):
     gene_list=[]
     for chromosome in df['chromosome'].unique():    #selection of exons by chromosome 
         df_chromosome = df[df['chromosome'] == chromosome]
-        for strand in df_chromosome['strand'].unique(): 
+        for strand in df_chromosome['strand'].unique():     #selection of exons by strand 
             df_strand = df_chromosome[df_chromosome['strand'] == strand]
-            start = None    #start reset at each strand 
-            end = None      #end reset at each  strand
+            start = None    #reset the strat position at the begining of each strand 
+            end = None      #reset the end position at the begining of each strand
             for g in df_strand['gene'].unique():    #selection of exons by gene
                 exons_list=[]
                 df_gene = df_strand[df_strand['gene'] == g]
@@ -88,7 +87,7 @@ def merge_overlap_exons(df):
                         start = df_gene.iloc[i]['start']    #set start for the first exon of the gene
                         end = df_gene.iloc[i]['end']        #set end for the first exon of the gene
                     if df_gene.iloc[i]['start'] <= end  and df_gene.iloc[i]['end'] <= end: 
-                            exons_list.append(str(df_gene.iloc[i]['exon']))     
+                            exons_list.append(str(df_gene.iloc[i]['exon']))     #when an 
                             continue
                     if df_gene.iloc[i]['start'] <= end and df_gene.iloc[i]['end'] > end : 
                             exons_list.append(str(df_gene.iloc[i]['exon']))
